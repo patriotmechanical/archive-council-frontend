@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Archive Council — Empire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void: #020508;
+  --deep: #060c14;
+  --panel: #0a1520;
+  --panel2: #0d1b28;
+  --border: #162230;
+  --border2: #1e3045;
+  --gold: #c9a84c;
+  --gold-light: #e8c96a;
+  --gold-dim: #6a5522;
+  --cyan: #4ab8d4;
+  --cyan-dim: #163040;
+  --green: #3dc87a;
+  --red: #d44a4a;
+  --purple: #7a5ad4;
+  --text: #b8ccd8;
+  --text-dim: #506070;
+  --text-bright: #ddeeff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══════════════════════════════
+   TOP BAR
+══════════════════════════════ */
+#topbar {
+  height: 48px;
+  background: var(--deep);
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.tb-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  text-decoration: none;
+}
+.tb-logo-hex {
+  width: 22px; height: 22px;
+  border: 1.5px solid var(--gold);
+  transform: rotate(45deg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: var(--gold);
+}
+.tb-logo-hex span { transform: rotate(-45deg); display: block; }
+.tb-logo-name {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+/* Resources strip */
+.tb-resources {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+  flex: 1;
+  padding: 0 8px;
+}
+.tb-res {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  cursor: default;
+}
+.tb-res-icon { font-size: 14px; }
+.tb-res-info { line-height: 1.15; }
+.tb-res-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: var(--gold);
+}
+.tb-res-rate {
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 0.5px;
+}
+
+/* Nav tabs */
+.tb-nav {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+.tb-tab {
+  height: 100%;
+  padding: 0 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.tb-tab:hover { color: var(--text); }
+.tb-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tb-tab .badge {
+  position: absolute;
+  top: 8px; right: 6px;
+  background: var(--red);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Right side of topbar */
+.tb-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border-left: 1px solid var(--border);
+  height: 100%;
+}
+.tb-user-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+.tb-user-title {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.tb-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  padding: 4px 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tb-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+/* ══════════════════════════════
+   MAIN SPLIT LAYOUT
+══════════════════════════════ */
+#game-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════
+   LEFT — ISOMETRIC MAP
+══════════════════════════════ */
+#map-area {
+  flex: 1;
+  position: relative;
+  background: var(--void);
+  overflow: hidden;
+}
+
+#city-canvas {
+  display: block;
+  cursor: default;
+}
+
+/* Map overlay controls */
+.map-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  gap: 6px;
+}
+.map-btn {
+  background: rgba(6,12,20,0.85);
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  backdrop-filter: blur(4px);
+}
+.map-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+.map-colony-name {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 2px;
+  background: rgba(2,5,8,0.7);
+  border: 1px solid var(--border2);
+  padding: 4px 16px;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+}
+
+/* Building tooltip */
+#building-tooltip {
+  position: absolute;
+  display: none;
+  background: rgba(6,12,20,0.96);
+  border: 1px solid var(--border2);
+  border-top: 2px solid var(--gold);
+  padding: 12px 16px;
+  min-width: 200px;
+  pointer-events: none;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+.tt-name {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.tt-level {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.tt-desc {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.tt-production {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--green);
+}
+.tt-hint {
+  font-size: 10px;
+  color: var(--cyan);
+  margin-top: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ══════════════════════════════
+   RIGHT PANEL
+══════════════════════════════ */
+#right-panel {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--deep);
+  border-left: 1px solid var(--border2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Panel tabs */
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-tab {
+  flex: 1;
+  padding: 10px 4px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: -1px;
+}
+.panel-tab:hover { color: var(--text); }
+.panel-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-track { background: transparent; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.panel-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-section-title {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.panel-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Building selected panel ── */
+#selected-panel { display: none; }
+#selected-panel.show { display: block; }
+
+.sel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.sel-icon {
+  font-size: 32px;
+  width: 52px; height: 52px;
+  background: rgba(201,168,76,0.06);
+  border: 1px solid var(--gold-dim);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sel-info { flex: 1; }
+.sel-name {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin-bottom: 3px;
+}
+.sel-level {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.sel-category {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  border: 1px solid var(--cyan-dim);
+  padding: 1px 6px;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+.sel-desc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+/* Level bar */
+.level-bar-wrap {
+  margin-bottom: 14px;
+}
+.level-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+}
+.level-bar {
+  height: 4px;
+  background: var(--border);
+  position: relative;
+}
+.level-bar-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(to right, var(--gold-dim), var(--gold));
+  transition: width 0.4s ease;
+}
+
+/* Production stats */
+.prod-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.prod-stat {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+}
+.prod-stat-label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.prod-stat-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  color: var(--green);
+}
+
+/* Cost breakdown */
+.cost-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.cost-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 6px 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+.cost-item-icon { font-size: 13px; }
+.cost-item-val { font-family: 'Share Tech Mono', monospace; }
+.cost-item.unaffordable { border-color: rgba(212,74,74,0.3); }
+.cost-item.unaffordable .cost-item-val { color: var(--red); }
+
+/* Upgrade button */
+.btn-upgrade {
+  width: 100%;
+  background: var(--gold);
+  border: none;
+  color: var(--void);
+  padding: 11px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-upgrade:hover:not(:disabled) {
+  background: var(--gold-light);
+  box-shadow: 0 0 16px rgba(201,168,76,0.25);
+}
+.btn-upgrade:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.btn-upgrade.building {
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  cursor: default;
+}
+
+/* ── Empty plot panel ── */
+#empty-panel { display: none; }
+#empty-panel.show { display: block; }
+
+.empty-header {
+  text-align: center;
+  padding: 20px 0 14px;
+}
+.empty-icon { font-size: 36px; margin-bottom: 8px; }
+.empty-title {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.empty-sub { font-size: 12px; color: var(--text-dim); }
+
+/* Build list */
+.build-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.build-option {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.build-option:hover {
+  border-color: var(--gold-dim);
+  background: var(--panel2);
+}
+.build-option-icon { font-size: 20px; flex-shrink: 0; }
+.build-option-info { flex: 1; min-width: 0; }
+.build-option-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 2px;
+}
+.build-option-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.build-option-cost {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--gold);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Overview panel (default) ── */
+#overview-panel { display: block; }
+
+.overview-res-list { display: flex; flex-direction: column; gap: 8px; }
+.ov-res {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ov-res-icon { font-size: 16px; width: 24px; text-align: center; }
+.ov-res-info { flex: 1; }
+.ov-res-name {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.ov-res-bar { height: 3px; background: var(--border); position: relative; }
+.ov-res-bar-fill {
+  position: absolute;
+  left:0; top:0; bottom:0;
+  background: var(--gold);
+  transition: width 0.5s ease;
+}
+.ov-res-nums {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: right;
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+.ov-res-nums span { color: var(--green); display: block; }
+
+/* Build queue */
+.queue-items { display: flex; flex-direction: column; gap: 6px; }
+.queue-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+.queue-item-icon { font-size: 16px; }
+.queue-item-info { flex: 1; }
+.queue-item-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.queue-item-time {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: var(--cyan);
+}
+.queue-progress {
+  height: 2px;
+  background: var(--border);
+  margin-top: 5px;
+  position: relative;
+  overflow: hidden;
+}
+.queue-progress-fill {
+  position: absolute;
+  left:0;top:0;bottom:0;
+  background: var(--cyan);
+  transition: width 1s linear;
+}
+.queue-empty {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* ── World chat ── */
+#chat-area {
+  height: 140px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border2);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+}
+.chat-header {
+  padding: 6px 12px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chat-live { color: var(--green); font-size: 8px; }
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.chat-msg {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+.chat-msg-user { color: var(--gold); font-weight: 600; }
+.chat-msg-text { color: var(--text-dim); }
+.chat-input-row {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 6px 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  outline: none;
+}
+.chat-input::placeholder { color: var(--text-dim); }
+.chat-send {
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 0 12px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: color 0.15s;
+}
+.chat-send:hover { color: var(--gold); }
+
+/* ── Notification toast ── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--panel2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--gold);
+  padding: 10px 20px;
+  font-size: 13px;
+  color: var(--text-bright);
+  z-index: 999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Loading overlay */
+#loading {
+  position: fixed;
+  inset: 0;
+  background: var(--void);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+</style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loading">
+  <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--gold);letter-spacing:3px;margin-bottom:8px;">THE ARCHIVE COUNCIL</div>
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">SYNCHRONIZING COLONY DATA...</div>
+</div>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <a href="https://thearchivecouncil.com" class="tb-logo">
+    <div class="tb-logo-hex"><span>⬡</span></div>
+    <div class="tb-logo-name">ARCHIVE</div>
+  </a>
+
+  <div class="tb-resources" id="tb-resources">
+    <div class="tb-res"><div class="tb-res-icon">⚡</div><div class="tb-res-info"><div class="tb-res-val" id="r-energy">—</div><div class="tb-res-rate" id="r-energy-rate">+0/hr</div></div></div>
+    <div class="tb-res"><div class="tb-res-icon">⛏️</div><div class="tb-res-info"><div class="tb-res-val" id="r-ore">—</div><div class="tb-res-rate" id="r-ore-rate">+0/hr</div></div></div>
+    <div class="tb-res"><div class="tb-res-icon">🔬</div><div class="tb-res-info"><div class="tb-res-val" id="r-nanites">—</div><div class="tb-res-rate" id="r-nanites-rate">+0/hr</div></div></div>
+    <div class="tb-res"><div class="tb-res-icon">🌾</div><div class="tb-res-info"><div class="tb-res-val" id="r-rations">—</div><div class="tb-res-rate" id="r-rations-rate">+0/hr</div></div></div>
+  </div>
+
+  <div class="tb-nav">
+    <button class="tb-tab active" onclick="switchTab('empire',this)">EMPIRE</button>
+    <button class="tb-tab" onclick="switchTab('alliance',this)">ALLIANCE</button>
+    <button class="tb-tab" onclick="switchTab('research',this)">RESEARCH</button>
+    <button class="tb-tab" onclick="switchTab('military',this)">MILITARY</button>
+    <button class="tb-tab" onclick="switchTab('market',this)">MARKET</button>
+    <button class="tb-tab" onclick="switchTab('rankings',this)">RANKINGS</button>
+    <button class="tb-tab" onclick="switchTab('reports',this)">REPORTS<span class="badge" id="reports-badge" style="display:none">0</span></button>
+  </div>
+
+  <div class="tb-right">
+    <div>
+      <div class="tb-user-name" id="tb-username">—</div>
+      <div class="tb-user-title" id="tb-title">INITIATE</div>
+    </div>
+    <button class="tb-btn" onclick="doLogout()">LOGOUT</button>
+  </div>
+</div>
+
+<!-- MAIN BODY -->
+<div id="game-body">
+
+  <!-- LEFT: ISOMETRIC MAP -->
+  <div id="map-area">
+    <canvas id="city-canvas"></canvas>
+    <div class="map-colony-name" id="colony-name-display">COLONY</div>
+    <div class="map-controls">
+      <div class="map-btn" onclick="zoomIn()" title="Zoom In">+</div>
+      <div class="map-btn" onclick="zoomOut()" title="Zoom Out">−</div>
+      <div class="map-btn" onclick="resetView()" title="Reset View">⌂</div>
+    </div>
+    <div id="building-tooltip">
+      <div class="tt-name" id="tt-name">—</div>
+      <div class="tt-level" id="tt-level">—</div>
+      <div class="tt-desc" id="tt-desc">—</div>
+      <div class="tt-production" id="tt-prod"></div>
+      <div class="tt-hint" id="tt-hint">Click to manage</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+    <div class="panel-tabs">
+      <button class="panel-tab active" onclick="switchPanelTab('overview',this)">OVERVIEW</button>
+      <button class="panel-tab" onclick="switchPanelTab('build',this)">BUILD</button>
+      <button class="panel-tab" onclick="switchPanelTab('units',this)">UNITS</button>
+    </div>
+
+    <div class="panel-body" id="panel-body">
+
+      <!-- OVERVIEW TAB -->
+      <div id="overview-tab">
+
+        <!-- Selected building -->
+        <div class="panel-section" id="selected-panel">
+          <div class="panel-section-title">Selected</div>
+          <div class="sel-header">
+            <div class="sel-icon" id="sel-icon">🏗️</div>
+            <div class="sel-info">
+              <div class="sel-name" id="sel-name">—</div>
+              <div class="sel-level" id="sel-level">LEVEL —</div>
+              <div class="sel-category" id="sel-category">—</div>
+            </div>
+          </div>
+          <div class="sel-desc" id="sel-desc">—</div>
+          <div class="level-bar-wrap">
+            <div class="level-bar-label">
+              <span id="sel-lv-cur">Lv 0</span>
+              <span id="sel-lv-max">Max 10</span>
+            </div>
+            <div class="level-bar"><div class="level-bar-fill" id="sel-lv-bar" style="width:0%"></div></div>
+          </div>
+          <div class="prod-stats" id="sel-prod-stats"></div>
+          <div class="panel-section-title" id="upgrade-cost-label">Upgrade Cost</div>
+          <div class="cost-grid" id="sel-cost-grid"></div>
+          <button class="btn-upgrade" id="btn-upgrade" onclick="doUpgrade()">UPGRADE</button>
+        </div>
+
+        <!-- Empty plot -->
+        <div class="panel-section" id="empty-panel">
+          <div class="empty-header">
+            <div class="empty-icon">🔲</div>
+            <div class="empty-title">Empty Plot</div>
+            <div class="empty-sub">Select a building type to construct here</div>
+          </div>
+          <div class="build-list" id="empty-build-list"></div>
+        </div>
+
+        <!-- Resources overview -->
+        <div class="panel-section" id="overview-panel">
+          <div class="panel-section-title">Resources</div>
+          <div class="overview-res-list">
+            <div class="ov-res">
+              <div class="ov-res-icon">⚡</div>
+              <div class="ov-res-info">
+                <div class="ov-res-name">Energy</div>
+                <div class="ov-res-bar"><div class="ov-res-bar-fill" id="ov-energy-bar" style="width:0%"></div></div>
+              </div>
+              <div class="ov-res-nums" id="ov-energy-nums">0 / 0<span>+0/hr</span></div>
+            </div>
+            <div class="ov-res">
+              <div class="ov-res-icon">⛏️</div>
+              <div class="ov-res-info">
+                <div class="ov-res-name">Ore</div>
+                <div class="ov-res-bar"><div class="ov-res-bar-fill" id="ov-ore-bar" style="width:0%"></div></div>
+              </div>
+              <div class="ov-res-nums" id="ov-ore-nums">0 / 0<span>+0/hr</span></div>
+            </div>
+            <div class="ov-res">
+              <div class="ov-res-icon">🔬</div>
+              <div class="ov-res-info">
+                <div class="ov-res-name">Nanites</div>
+                <div class="ov-res-bar"><div class="ov-res-bar-fill" id="ov-nanites-bar" style="width:0%"></div></div>
+              </div>
+              <div class="ov-res-nums" id="ov-nanites-nums">0 / 0<span>+0/hr</span></div>
+            </div>
+            <div class="ov-res">
+              <div class="ov-res-icon">🌾</div>
+              <div class="ov-res-info">
+                <div class="ov-res-name">Rations</div>
+                <div class="ov-res-bar"><div class="ov-res-bar-fill" id="ov-rations-bar" style="width:0%"></div></div>
+              </div>
+              <div class="ov-res-nums" id="ov-rations-nums">0 / 0<span>+0/hr</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Build queue -->
+        <div class="panel-section">
+          <div class="panel-section-title">Build Queue</div>
+          <div class="queue-items" id="queue-items">
+            <div class="queue-empty">Queue is empty</div>
+          </div>
+        </div>
+
+      </div><!-- end overview-tab -->
+
+      <!-- BUILD TAB -->
+      <div id="build-tab" style="display:none">
+        <div class="panel-section">
+          <div class="panel-section-title">Production</div>
+          <div class="build-list" id="build-list-production"></div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-section-title">Military</div>
+          <div class="build-list" id="build-list-military"></div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-section-title">Defense</div>
+          <div class="build-list" id="build-list-defense"></div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-section-title">Special</div>
+          <div class="build-list" id="build-list-special"></div>
+        </div>
+      </div>
+
+      <!-- UNITS TAB -->
+      <div id="units-tab" style="display:none">
+        <div class="panel-section">
+          <div class="panel-section-title">Garrison</div>
+          <div id="units-list" style="font-size:12px;color:var(--text-dim);text-align:center;padding:12px 0;">
+            No units trained yet
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end panel-body -->
+
+    <!-- CHAT -->
+    <div id="chat-area">
+      <div class="chat-header">
+        <span>World Chat</span>
+        <span class="chat-live">● LIVE</span>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" type="text" placeholder="Message the world..." maxlength="200">
+        <button class="chat-send" onclick="sendChat()">▶</button>
+      </div>
+    </div>
+
+  </div><!-- end right-panel -->
+</div><!-- end game-body -->
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  CONFIG & STATE
+// ══════════════════════════════════════════════════
+const API = 'https://game.thearchivecouncil.com/api';
+
+let STATE = {
+  user: null,
+  colony: null,
+  buildings: [],
+  queue: [],
+  buildingTypes: {},
+  selectedTile: null,   // {tx, ty} or null
+  selectedBuilding: null,
+  panelTab: 'overview',
+  resources: { energy:0, ore:0, nanites:0, rations:0 },
+  resourceRates: { energy:0, ore:0, nanites:0, rations:0 },
+  resourceCaps: { energy:50000, ore:50000, nanites:20000, rations:50000 },
+};
+
+// ══════════════════════════════════════════════════
+//  ISOMETRIC MAP ENGINE
+// ══════════════════════════════════════════════════
+const canvas  = document.getElementById('city-canvas');
+const ctx     = canvas.getContext('2d');
+
+// Grid config
+const GRID_COLS = 18;
+const GRID_ROWS = 14;
+let TILE_W = 64;
+let TILE_H = 32;
+let offsetX = 0;
+let offsetY = 0;
+let scale   = 1;
+
+// Color palette for tiles
+const TILE_COLORS = {
+  ground:    '#0f1e2e',
+  ground2:   '#0c1a28',
+  pad:       '#0a2535',
+  grid_line: 'rgba(74,184,212,0.08)',
+  highlight: 'rgba(201,168,76,0.18)',
+  hover:     'rgba(74,184,212,0.12)',
+  built:     'rgba(201,168,76,0.07)',
+};
+
+let hoveredTile = null;
+
+// Building placement map: key="tx,ty" → building object
+let buildingMap = {};
+
+// Fixed building slots — predefined positions for buildings
+const BUILDING_SLOTS = [
+  {tx:9,  ty:7,  fixed:'command_hub'},  // centre — always command hub
+  {tx:7,  ty:5},  {tx:11, ty:5},
+  {tx:7,  ty:7},  {tx:11, ty:7},
+  {tx:7,  ty:9},  {tx:11, ty:9},
+  {tx:5,  ty:6},  {tx:13, ty:6},
+  {tx:5,  ty:8},  {tx:13, ty:8},
+  {tx:9,  ty:4},  {tx:9,  ty:10},
+  {tx:6,  ty:11}, {tx:12, ty:11},
+  {tx:6,  ty:3},  {tx:12, ty:3},
+  {tx:4,  ty:10}, {tx:14, ty:10},
+];
+
+function resizeCanvas() {
+  const area = document.getElementById('map-area');
+  canvas.width  = area.clientWidth;
+  canvas.height = area.clientHeight;
+  centerView();
+  drawMap();
+}
+
+function centerView() {
+  // Center the isometric grid
+  const gridW = (GRID_COLS + GRID_ROWS) * (TILE_W / 2);
+  const gridH = (GRID_COLS + GRID_ROWS) * (TILE_H / 2);
+  offsetX = (canvas.width  - gridW * scale) / 2 + gridW * scale * 0.08;
+  offsetY = (canvas.height - gridH * scale) / 2 - gridH * scale * 0.05;
+}
+
+function isoToScreen(tx, ty) {
+  const sx = (tx - ty) * (TILE_W / 2) * scale + offsetX;
+  const sy = (tx + ty) * (TILE_H / 2) * scale + offsetY;
+  return { sx, sy };
+}
+
+function screenToIso(mx, my) {
+  const rx = (mx - offsetX) / scale;
+  const ry = (my - offsetY) / scale;
+  const tx = Math.round((rx / (TILE_W / 2) + ry / (TILE_H / 2)) / 2);
+  const ty = Math.round((ry / (TILE_H / 2) - rx / (TILE_W / 2)) / 2);
+  return { tx, ty };
+}
+
+function isValidTile(tx, ty) {
+  return tx >= 0 && tx < GRID_COLS && ty >= 0 && ty < GRID_ROWS;
+}
+
+function isSlot(tx, ty) {
+  return BUILDING_SLOTS.some(s => s.tx === tx && s.ty === ty);
+}
+
+function drawTile(tx, ty, fillColor, strokeColor) {
+  const { sx, sy } = isoToScreen(tx, ty);
+  const tw = TILE_W * scale / 2;
+  const th = TILE_H * scale / 2;
+
+  ctx.beginPath();
+  ctx.moveTo(sx,      sy - th);
+  ctx.lineTo(sx + tw, sy);
+  ctx.lineTo(sx,      sy + th);
+  ctx.lineTo(sx - tw, sy);
+  ctx.closePath();
+
+  if (fillColor) {
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+  }
+  if (strokeColor) {
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+}
+
+function drawBuilding(tx, ty, building) {
+  const { sx, sy } = isoToScreen(tx, ty);
+  const tw = TILE_W * scale / 2;
+  const th = TILE_H * scale / 2;
+
+  // Building platform
+  ctx.beginPath();
+  ctx.moveTo(sx,      sy - th);
+  ctx.lineTo(sx + tw, sy);
+  ctx.lineTo(sx,      sy + th);
+  ctx.lineTo(sx - tw, sy);
+  ctx.closePath();
+  ctx.fillStyle = TILE_COLORS.built;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(201,168,76,0.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Building icon — drawn above tile centre
+  const isSelected = STATE.selectedTile &&
+    STATE.selectedTile.tx === tx && STATE.selectedTile.ty === ty;
+
+  const iconSize = Math.max(14, TILE_W * scale * 0.45);
+  ctx.font = `${iconSize}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Glow for selected
+  if (isSelected) {
+    ctx.shadowColor = '#c9a84c';
+    ctx.shadowBlur  = 12 * scale;
+  }
+  ctx.fillText(building.icon || '🏗️', sx, sy - th * 0.3);
+  ctx.shadowBlur = 0;
+
+  // Level badge
+  if (building.level > 0) {
+    const badgeSize = Math.max(8, 10 * scale);
+    const bx = sx + tw * 0.6;
+    const by = sy - th * 0.8;
+    ctx.beginPath();
+    ctx.arc(bx, by, badgeSize * 0.8, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(6,12,20,0.9)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(201,168,76,0.6)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    ctx.font = `bold ${badgeSize}px Rajdhani,sans-serif`;
+    ctx.fillStyle = '#c9a84c';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(building.level, bx, by);
+  }
+
+  // "Building" animation
+  if (building.is_building) {
+    const t = (Date.now() / 500) % (Math.PI * 2);
+    const alpha = 0.5 + 0.5 * Math.sin(t);
+    ctx.beginPath();
+    ctx.arc(sx, sy - th * 0.8, 5 * scale, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(74,184,212,${alpha})`;
+    ctx.fill();
+  }
+}
+
+function drawMap() {
+  if (!canvas.width) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Deep space background
+  const grad = ctx.createRadialGradient(
+    canvas.width/2, canvas.height/2, 0,
+    canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height) * 0.7
+  );
+  grad.addColorStop(0, '#060c14');
+  grad.addColorStop(1, '#020508');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw tiles back to front (painter's algorithm)
+  for (let ty = 0; ty < GRID_ROWS; ty++) {
+    for (let tx = 0; tx < GRID_COLS; tx++) {
+      const key = `${tx},${ty}`;
+      const isHov = hoveredTile && hoveredTile.tx === tx && hoveredTile.ty === ty;
+      const isSel = STATE.selectedTile && STATE.selectedTile.tx === tx && STATE.selectedTile.ty === ty;
+      const isSlotTile = isSlot(tx, ty);
+
+      let fillColor = TILE_COLORS.ground;
+      if ((tx + ty) % 2 === 0) fillColor = TILE_COLORS.ground2;
+      if (isSlotTile) fillColor = TILE_COLORS.pad;
+      if (isHov && isSlotTile) fillColor = TILE_COLORS.hover;
+      if (isSel) fillColor = TILE_COLORS.highlight;
+
+      const strokeColor = isSlotTile ? TILE_COLORS.grid_line : 'rgba(20,35,50,0.4)';
+
+      // Don't draw base tile under buildings (building draw handles it)
+      if (!buildingMap[key]) {
+        drawTile(tx, ty, fillColor, strokeColor);
+      }
+    }
+  }
+
+  // Draw buildings on top
+  for (const key in buildingMap) {
+    const [tx, ty] = key.split(',').map(Number);
+    drawBuilding(tx, ty, buildingMap[key]);
+  }
+
+  // Outer perimeter highlight
+  ctx.strokeStyle = 'rgba(74,184,212,0.05)';
+  ctx.lineWidth = 1;
+
+  requestAnimationFrame(drawMap);
+}
+
+// ══════════════════════════════════════════════════
+//  MOUSE HANDLING
+// ══════════════════════════════════════════════════
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const { tx, ty } = screenToIso(mx, my);
+
+  if (isValidTile(tx, ty) && isSlot(tx, ty)) {
+    hoveredTile = { tx, ty };
+    canvas.style.cursor = 'pointer';
+    showTooltip(tx, ty, e.clientX, e.clientY);
+  } else {
+    hoveredTile = null;
+    canvas.style.cursor = 'default';
+    hideTooltip();
+  }
+});
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const { tx, ty } = screenToIso(mx, my);
+
+  if (isValidTile(tx, ty) && isSlot(tx, ty)) {
+    selectTile(tx, ty);
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  hoveredTile = null;
+  hideTooltip();
+});
+
+function showTooltip(tx, ty, mx, my) {
+  const key = `${tx},${ty}`;
+  const b = buildingMap[key];
+  const tt = document.getElementById('building-tooltip');
+
+  if (b) {
+    document.getElementById('tt-name').textContent = b.label || b.type;
+    document.getElementById('tt-level').textContent = `Level ${b.level} / ${b.max_level || 10}`;
+    document.getElementById('tt-desc').textContent = b.description || '';
+    const prod = [];
+    if ((b.energy_rate||0)*b.level > 0) prod.push(`+${(b.energy_rate*b.level).toLocaleString()} Energy/hr`);
+    if ((b.ore_rate||0)*b.level > 0)    prod.push(`+${(b.ore_rate*b.level).toLocaleString()} Ore/hr`);
+    if ((b.nanites_rate||0)*b.level > 0) prod.push(`+${(b.nanites_rate*b.level).toLocaleString()} Nanites/hr`);
+    if ((b.rations_rate||0)*b.level > 0) prod.push(`+${(b.rations_rate*b.level).toLocaleString()} Rations/hr`);
+    document.getElementById('tt-prod').textContent = prod.join(' · ');
+    document.getElementById('tt-hint').textContent = b.is_building ? '⚙ Under Construction' : 'Click to manage';
+  } else {
+    document.getElementById('tt-name').textContent = 'Empty Plot';
+    document.getElementById('tt-level').textContent = `Tile ${tx}, ${ty}`;
+    document.getElementById('tt-desc').textContent = 'No structure built here.';
+    document.getElementById('tt-prod').textContent = '';
+    document.getElementById('tt-hint').textContent = 'Click to build';
+  }
+
+  const ttEl = tt;
+  ttEl.style.display = 'block';
+
+  // Position tooltip near cursor but keep in viewport
+  const vpW = window.innerWidth;
+  const vpH = window.innerHeight;
+  let left = mx + 16;
+  let top  = my - 40;
+  if (left + 220 > vpW) left = mx - 236;
+  if (top + 150  > vpH) top  = vpH - 160;
+  if (top < 56) top = 56;
+  ttEl.style.left = left + 'px';
+  ttEl.style.top  = top  + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('building-tooltip').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════
+//  TILE SELECTION & PANEL
+// ══════════════════════════════════════════════════
+function selectTile(tx, ty) {
+  STATE.selectedTile = { tx, ty };
+  const key = `${tx},${ty}`;
+  const b = buildingMap[key];
+  STATE.selectedBuilding = b || null;
+
+  // Switch to overview panel tab
+  switchPanelTab('overview', document.querySelector('.panel-tab'));
+
+  if (b) {
+    showSelectedPanel(b, tx, ty);
+  } else {
+    showEmptyPanel(tx, ty);
+  }
+}
+
+function showSelectedPanel(b, tx, ty) {
+  document.getElementById('selected-panel').classList.add('show');
+  document.getElementById('empty-panel').classList.remove('show');
+  document.getElementById('overview-panel').style.display = 'none';
+
+  document.getElementById('sel-icon').textContent    = b.icon || '🏗️';
+  document.getElementById('sel-name').textContent    = b.label || b.type;
+  document.getElementById('sel-category').textContent = (b.category || '').toUpperCase();
+  document.getElementById('sel-desc').textContent    = b.description || '';
+
+  const lvCur = b.level;
+  const lvMax = b.max_level || 10;
+  document.getElementById('sel-level').textContent   = `LEVEL ${lvCur} / ${lvMax}`;
+  document.getElementById('sel-lv-cur').textContent  = `Lv ${lvCur}`;
+  document.getElementById('sel-lv-max').textContent  = `Max ${lvMax}`;
+  document.getElementById('sel-lv-bar').style.width  = `${(lvCur/lvMax)*100}%`;
+
+  // Production stats
+  const prodEl = document.getElementById('sel-prod-stats');
+  prodEl.innerHTML = '';
+  const stats = [
+    { label:'Energy/hr',  val: (b.energy_rate  || 0) * b.level, show: b.energy_rate  > 0 },
+    { label:'Ore/hr',     val: (b.ore_rate     || 0) * b.level, show: b.ore_rate     > 0 },
+    { label:'Nanites/hr', val: (b.nanites_rate || 0) * b.level, show: b.nanites_rate > 0 },
+    { label:'Rations/hr', val: (b.rations_rate || 0) * b.level, show: b.rations_rate > 0 },
+  ];
+  stats.filter(s=>s.show).forEach(s => {
+    prodEl.innerHTML += `<div class="prod-stat"><div class="prod-stat-label">${s.label}</div><div class="prod-stat-val">+${s.val.toLocaleString()}</div></div>`;
+  });
+
+  // Upgrade costs
+  const mult = Math.pow(1.5, lvCur);
+  const bt = STATE.buildingTypes[b.type] || {};
+  const costs = [
+    { icon:'⚡', label:'Energy',  val: Math.floor((bt.base_energy  ||0)*mult), cur: STATE.resources.energy  },
+    { icon:'⛏️', label:'Ore',     val: Math.floor((bt.base_ore     ||0)*mult), cur: STATE.resources.ore     },
+    { icon:'🔬', label:'Nanites', val: Math.floor((bt.base_nanites ||0)*mult), cur: STATE.resources.nanites },
+    { icon:'🌾', label:'Rations', val: Math.floor((bt.base_rations ||0)*mult), cur: STATE.resources.rations },
+  ];
+
+  const costEl = document.getElementById('sel-cost-grid');
+  costEl.innerHTML = '';
+  let canAfford = true;
+  let hasCost = false;
+  costs.forEach(c => {
+    if (c.val <= 0) return;
+    hasCost = true;
+    const affordable = c.cur >= c.val;
+    if (!affordable) canAfford = false;
+    costEl.innerHTML += `<div class="cost-item ${affordable?'':'unaffordable'}">
+      <span class="cost-item-icon">${c.icon}</span>
+      <span class="cost-item-val">${fmt(c.val)}</span>
+    </div>`;
+  });
+
+  const upgradeBtn = document.getElementById('btn-upgrade');
+  document.getElementById('upgrade-cost-label').style.display = hasCost ? '' : 'none';
+  costEl.style.display = hasCost ? '' : 'none';
+
+  if (b.is_building) {
+    upgradeBtn.textContent = '⚙ CONSTRUCTING...';
+    upgradeBtn.classList.add('building');
+    upgradeBtn.disabled = true;
+  } else if (lvCur >= lvMax) {
+    upgradeBtn.textContent = '✓ MAX LEVEL';
+    upgradeBtn.classList.remove('building');
+    upgradeBtn.disabled = true;
+  } else {
+    upgradeBtn.textContent = `UPGRADE → LV.${lvCur+1}`;
+    upgradeBtn.classList.remove('building');
+    upgradeBtn.disabled = !canAfford;
+  }
+
+  // Store selected tile coords for upgrade
+  upgradeBtn.dataset.tx = tx;
+  upgradeBtn.dataset.ty = ty;
+  upgradeBtn.dataset.type = b.type;
+}
+
+function showEmptyPanel(tx, ty) {
+  document.getElementById('selected-panel').classList.remove('show');
+  document.getElementById('empty-panel').classList.add('show');
+  document.getElementById('overview-panel').style.display = 'none';
+
+  // Populate build options for this tile
+  const listEl = document.getElementById('empty-build-list');
+  listEl.innerHTML = '';
+  Object.values(STATE.buildingTypes).forEach(bt => {
+    const cost = `${bt.base_ore > 0 ? fmt(bt.base_ore)+'⛏️ ' : ''}${bt.base_energy > 0 ? fmt(bt.base_energy)+'⚡' : ''}`;
+    listEl.innerHTML += `
+      <div class="build-option" onclick="buildNew('${bt.type}',${tx},${ty})">
+        <div class="build-option-icon">${bt.icon}</div>
+        <div class="build-option-info">
+          <div class="build-option-name">${bt.label}</div>
+          <div class="build-option-desc">${bt.description || ''}</div>
+        </div>
+        <div class="build-option-cost">${cost}</div>
+      </div>`;
+  });
+}
+
+function clearSelection() {
+  STATE.selectedTile = null;
+  STATE.selectedBuilding = null;
+  document.getElementById('selected-panel').classList.remove('show');
+  document.getElementById('empty-panel').classList.remove('show');
+  document.getElementById('overview-panel').style.display = '';
+}
+
+// ══════════════════════════════════════════════════
+//  API ACTIONS
+// ══════════════════════════════════════════════════
+async function doUpgrade() {
+  const btn = document.getElementById('btn-upgrade');
+  const tx = parseInt(btn.dataset.tx);
+  const ty = parseInt(btn.dataset.ty);
+  const type = btn.dataset.type;
+
+  btn.disabled = true;
+  btn.textContent = 'SENDING...';
+
+  try {
+    const res = await apiPost(`/colonies/${STATE.colony.id}/build`, { type, tile_x: tx, tile_y: ty });
+    if (res.error) {
+      showToast('⚠ ' + res.error);
+      btn.disabled = false;
+      btn.textContent = 'UPGRADE';
+    } else {
+      showToast(`✓ ${res.message}`);
+      await refreshColony();
+    }
+  } catch(e) {
+    showToast('Connection error');
+    btn.disabled = false;
+  }
+}
+
+async function buildNew(type, tx, ty) {
+  try {
+    const res = await apiPost(`/colonies/${STATE.colony.id}/build`, { type, tile_x: tx, tile_y: ty });
+    if (res.error) {
+      showToast('⚠ ' + res.error);
+    } else {
+      showToast(`✓ ${res.message}`);
+      await refreshColony();
+      // Re-select to show the now-building structure
+      const key = `${tx},${ty}`;
+      if (buildingMap[key]) selectTile(tx, ty);
+    }
+  } catch(e) {
+    showToast('Connection error');
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  DATA LOADING
+// ══════════════════════════════════════════════════
+async function loadGame() {
+  setLoading('AUTHENTICATING...');
+
+  const token = getToken();
+  if (!token) { window.location.href = 'https://thearchivecouncil.com'; return; }
+
+  // Verify token
+  const user = await apiFetch('/auth/me');
+  if (user.error) { clearToken(); window.location.href = 'https://thearchivecouncil.com'; return; }
+  STATE.user = user;
+
+  document.getElementById('tb-username').textContent = user.username;
+  document.getElementById('tb-title').textContent    = user.title || 'INITIATE';
+
+  setLoading('LOADING BUILDING TYPES...');
+
+  // Load building types
+  const types = await apiFetch('/colonies/types/all');
+  if (Array.isArray(types)) {
+    types.forEach(bt => { STATE.buildingTypes[bt.type] = bt; });
+    populateBuildTab(types);
+  }
+
+  setLoading('SYNCHRONIZING COLONY...');
+
+  // Load colonies
+  const colonies = await apiFetch('/colonies');
+  if (!colonies.length) {
+    setLoading('NO COLONY FOUND — CONTACT SUPPORT');
+    return;
+  }
+
+  STATE.colony = colonies[0];
+  document.getElementById('colony-name-display').textContent = STATE.colony.name;
+
+  await refreshColony();
+
+  // Hide loading
+  document.getElementById('loading').style.display = 'none';
+
+  // Start local resource ticker
+  startLocalTick();
+
+  // Load chat
+  loadChat();
+}
+
+async function refreshColony() {
+  const detail = await apiFetch(`/colonies/${STATE.colony.id}`);
+  if (detail.error) return;
+
+  STATE.colony   = detail.colony;
+  STATE.buildings = detail.buildings || [];
+  STATE.queue    = detail.queue || [];
+
+  // Sync resources
+  STATE.resources = {
+    energy:  detail.colony.energy,
+    ore:     detail.colony.ore,
+    nanites: detail.colony.nanites,
+    rations: detail.colony.rations,
+  };
+  STATE.resourceRates = {
+    energy:  detail.colony.energy_rate,
+    ore:     detail.colony.ore_rate,
+    nanites: detail.colony.nanites_rate,
+    rations: detail.colony.rations_rate,
+  };
+  STATE.resourceCaps = {
+    energy:  detail.colony.energy_cap,
+    ore:     detail.colony.ore_cap,
+    nanites: detail.colony.nanites_cap,
+    rations: detail.colony.rations_cap,
+  };
+
+  // Rebuild building map
+  buildingMap = {};
+  STATE.buildings.forEach(b => {
+    const bt = STATE.buildingTypes[b.type] || {};
+    buildingMap[`${b.tile_x},${b.tile_y}`] = {
+      ...b,
+      icon:         bt.icon || '🏗️',
+      label:        bt.label || b.type,
+      description:  bt.description || '',
+      category:     bt.category || '',
+      max_level:    bt.max_level || 10,
+      energy_rate:  bt.energy_rate || 0,
+      ore_rate:     bt.ore_rate || 0,
+      nanites_rate: bt.nanites_rate || 0,
+      rations_rate: bt.rations_rate || 0,
+    };
+  });
+
+  updateResourceDisplay();
+  updateQueueDisplay();
+
+  // Refresh selected panel if something is selected
+  if (STATE.selectedTile) {
+    const key = `${STATE.selectedTile.tx},${STATE.selectedTile.ty}`;
+    const b = buildingMap[key];
+    if (b) showSelectedPanel(b, STATE.selectedTile.tx, STATE.selectedTile.ty);
+    else   showEmptyPanel(STATE.selectedTile.tx, STATE.selectedTile.ty);
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  DISPLAY UPDATES
+// ══════════════════════════════════════════════════
+function updateResourceDisplay() {
+  const r = STATE.resources;
+  const rt = STATE.resourceRates;
+  const rc = STATE.resourceCaps;
+
+  // Topbar
+  document.getElementById('r-energy').textContent  = fmt(r.energy);
+  document.getElementById('r-ore').textContent     = fmt(r.ore);
+  document.getElementById('r-nanites').textContent = fmt(r.nanites);
+  document.getElementById('r-rations').textContent = fmt(r.rations);
+  document.getElementById('r-energy-rate').textContent  = `+${fmt(rt.energy)}/hr`;
+  document.getElementById('r-ore-rate').textContent     = `+${fmt(rt.ore)}/hr`;
+  document.getElementById('r-nanites-rate').textContent = `+${fmt(rt.nanites)}/hr`;
+  document.getElementById('r-rations-rate').textContent = `+${fmt(rt.rations)}/hr`;
+
+  // Overview bars
+  const items = [
+    { key:'energy',  cap:rc.energy  },
+    { key:'ore',     cap:rc.ore     },
+    { key:'nanites', cap:rc.nanites },
+    { key:'rations', cap:rc.rations },
+  ];
+  items.forEach(({key, cap}) => {
+    const pct = Math.min(100, (r[key] / cap) * 100);
+    const el = document.getElementById(`ov-${key}-bar`);
+    if (el) el.style.width = pct + '%';
+    const numEl = document.getElementById(`ov-${key}-nums`);
+    if (numEl) numEl.innerHTML = `${fmt(r[key])} / ${fmt(cap)}<span>+${fmt(STATE.resourceRates[key])}/hr</span>`;
+  });
+}
+
+function updateQueueDisplay() {
+  const el = document.getElementById('queue-items');
+  if (!STATE.queue.length) {
+    el.innerHTML = '<div class="queue-empty">Queue is empty</div>';
+    return;
+  }
+
+  const now = Date.now();
+  el.innerHTML = STATE.queue.map(q => {
+    const finish = new Date(q.finish_at).getTime();
+    const total  = finish - new Date(q.created_at || Date.now() - 60000).getTime();
+    const remain = Math.max(0, finish - now);
+    const pct    = total > 0 ? Math.min(100, ((total - remain) / total) * 100) : 50;
+    const bt     = STATE.buildingTypes[q.type] || {};
+    return `<div class="queue-item">
+      <div class="queue-item-icon">${bt.icon || '🏗️'}</div>
+      <div class="queue-item-info">
+        <div class="queue-item-name">${bt.label || q.type} → Lv.${q.level+1}</div>
+        <div class="queue-item-time">${formatCountdown(remain)}</div>
+        <div class="queue-progress"><div class="queue-progress-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  LOCAL RESOURCE TICKER (client-side simulation)
+// ══════════════════════════════════════════════════
+let lastTickTime = Date.now();
+
+function startLocalTick() {
+  setInterval(() => {
+    const now = Date.now();
+    const elapsedHrs = (now - lastTickTime) / 3_600_000;
+    lastTickTime = now;
+
+    const r  = STATE.resources;
+    const rt = STATE.resourceRates;
+    const rc = STATE.resourceCaps;
+
+    r.energy  = Math.min(rc.energy,  r.energy  + rt.energy  * elapsedHrs);
+    r.ore     = Math.min(rc.ore,     r.ore     + rt.ore     * elapsedHrs);
+    r.nanites = Math.min(rc.nanites, r.nanites + rt.nanites * elapsedHrs);
+    r.rations = Math.min(rc.rations, r.rations + rt.rations * elapsedHrs);
+
+    updateResourceDisplay();
+    updateQueueDisplay();
+  }, 2000); // Update every 2 seconds
+
+  // Full server sync every 60s
+  setInterval(refreshColony, 60000);
+}
+
+// ══════════════════════════════════════════════════
+//  BUILD TAB
+// ══════════════════════════════════════════════════
+function populateBuildTab(types) {
+  const cats = { production: [], military: [], defense: [], special: [] };
+  types.forEach(bt => {
+    const cat = bt.category || 'special';
+    if (cats[cat]) cats[cat].push(bt);
+  });
+
+  Object.entries(cats).forEach(([cat, list]) => {
+    const el = document.getElementById(`build-list-${cat}`);
+    if (!el) return;
+    el.innerHTML = list.map(bt => `
+      <div class="build-option" onclick="buildFromTab('${bt.type}')">
+        <div class="build-option-icon">${bt.icon}</div>
+        <div class="build-option-info">
+          <div class="build-option-name">${bt.label}</div>
+          <div class="build-option-desc">${bt.description || ''}</div>
+        </div>
+        <div class="build-option-cost">${bt.base_ore > 0 ? fmt(bt.base_ore)+'⛏️' : ''}</div>
+      </div>`).join('');
+  });
+}
+
+function buildFromTab(type) {
+  // Find the first empty slot and build there
+  const emptySlot = BUILDING_SLOTS.find(s => {
+    const key = `${s.tx},${s.ty}`;
+    return !buildingMap[key];
+  });
+  if (!emptySlot) { showToast('No empty building slots available'); return; }
+  buildNew(type, emptySlot.tx, emptySlot.ty);
+}
+
+// ══════════════════════════════════════════════════
+//  CHAT
+// ══════════════════════════════════════════════════
+async function loadChat() {
+  const msgs = await apiFetch('/chat/world');
+  if (Array.isArray(msgs)) renderChat(msgs);
+
+  // Poll every 10s
+  setInterval(async () => {
+    const fresh = await apiFetch('/chat/world');
+    if (Array.isArray(fresh)) renderChat(fresh);
+  }, 10000);
+}
+
+function renderChat(msgs) {
+  const el = document.getElementById('chat-messages');
+  const wasAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+  el.innerHTML = msgs.map(m => `
+    <div class="chat-msg">
+      <span class="chat-msg-user">${escHtml(m.username)}</span>
+      <span class="chat-msg-text"> ${escHtml(m.message)}</span>
+    </div>`).join('');
+  if (wasAtBottom) el.scrollTop = el.scrollHeight;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  await apiPost('/chat/world', { message: msg });
+  const fresh = await apiFetch('/chat/world');
+  if (Array.isArray(fresh)) renderChat(fresh);
+}
+
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat();
+});
+
+// ══════════════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════════════
+function switchTab(tab, el) {
+  document.querySelectorAll('.tb-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  // Future: swap main views for alliance/research/etc
+}
+
+function switchPanelTab(tab, clickedEl) {
+  STATE.panelTab = tab;
+  document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+  // Find the right tab button
+  document.querySelectorAll('.panel-tab').forEach(t => {
+    if (t.textContent.trim().toLowerCase().startsWith(tab)) t.classList.add('active');
+  });
+  document.getElementById('overview-tab').style.display = tab === 'overview' ? '' : 'none';
+  document.getElementById('build-tab').style.display    = tab === 'build'    ? '' : 'none';
+  document.getElementById('units-tab').style.display    = tab === 'units'    ? '' : 'none';
+
+  if (tab !== 'overview') {
+    clearSelection();
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  MAP CONTROLS
+// ══════════════════════════════════════════════════
+function zoomIn()   { scale = Math.min(scale * 1.25, 2.5); centerView(); }
+function zoomOut()  { scale = Math.max(scale * 0.8, 0.4);  centerView(); }
+function resetView(){ scale = 1; centerView(); }
+
+// ══════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════
+function getToken()   { return sessionStorage.getItem('tac_token'); }
+function clearToken() { sessionStorage.removeItem('tac_token'); }
+
+function doLogout() {
+  clearToken();
+  window.location.href = 'https://thearchivecouncil.com';
+}
+
+async function apiFetch(path) {
+  try {
+    const r = await fetch(API + path, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    return await r.json();
+  } catch(e) { return { error: e.message }; }
+}
+
+async function apiPost(path, body) {
+  try {
+    const r = await fetch(API + path, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(body)
+    });
+    return await r.json();
+  } catch(e) { return { error: e.message }; }
+}
+
+function fmt(n) {
+  if (n == null) return '0';
+  n = Math.floor(n);
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000)    return (n/1000).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
+
+function formatCountdown(ms) {
+  if (ms <= 0) return 'Complete';
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0) return `${h}h ${m%60}m`;
+  if (m > 0) return `${m}m ${s%60}s`;
+  return `${s}s`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function setLoading(msg) {
+  document.getElementById('loading-text').textContent = msg;
+}
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+loadGame();
+</script>
+</body>
+</html>
+
