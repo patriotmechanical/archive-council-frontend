@@ -1028,6 +1028,45 @@ const BUILDING_SLOTS = [
   {tx:4,  ty:10}, {tx:14, ty:10},
 ];
 
+// ── LOU Building Images ────────────────────────────────────────
+const LOU_BASE = 'https://raw.githubusercontent.com/FelixLeChat/LordOfUltima/master/LOU/LordOfUltima/LordOfUltima/Resources/Images/';
+const BUILDING_IMAGES = {
+  command_hub:     LOU_BASE + 'building_townhall.png',
+  solar_array:     LOU_BASE + 'building_foundry.png',
+  ore_extractor:   LOU_BASE + 'building_iron_quary.png',
+  nanite_forge:    LOU_BASE + 'building_stonemason.png',
+  hydroponics_bay: LOU_BASE + 'building_farm_2.png',
+  refinery:        LOU_BASE + 'building_mill.png',
+  storage_depot:   LOU_BASE + 'building_storage.png',
+  data_vault:      LOU_BASE + 'building_research_center.png',
+  barracks:        LOU_BASE + 'building_townhouse.png',
+  drone_bay:       LOU_BASE + 'building_marketplace.png',
+  mech_factory:    LOU_BASE + 'building_foundry.png',
+  launch_bay:      LOU_BASE + 'building_sawmill.png',
+  defense_grid:    LOU_BASE + 'building_stone_quary.png',
+  railgun_tower:   LOU_BASE + 'building_woodcutter.png',
+  missile_battery: LOU_BASE + 'building_iron_quary.png',
+  stealth_field:   LOU_BASE + 'building_stonemason.png',
+  quantum_lab:     LOU_BASE + 'building_research_center.png',
+  syndicate_hall:  LOU_BASE + 'building_townhall.png',
+  trading_post:    LOU_BASE + 'building_marketplace.png',
+};
+
+// Pre-load all building images into a cache
+const _imgCache = {};
+function getBuildingImage(type) {
+  const url = BUILDING_IMAGES[type];
+  if (!url) return null;
+  if (!_imgCache[url]) {
+    const img = new Image();
+    img.src = url;
+    _imgCache[url] = img;
+  }
+  return _imgCache[url];
+}
+// Kick off preload
+Object.values(BUILDING_IMAGES).forEach(url => getBuildingImage(Object.keys(BUILDING_IMAGES).find(k => BUILDING_IMAGES[k] === url)));
+
 function resizeCanvas() {
   const area = document.getElementById('map-area');
   canvas.width  = area.clientWidth;
@@ -1115,29 +1154,43 @@ function drawBuilding(tx, ty, building) {
   ctx.lineWidth = 0.5;
   ctx.stroke();
 
-  // Placeholder block (colored by category)
-  const catColors = {
-    production: '#1a4a2e',
-    military:   '#2e1a1a',
-    defense:    '#1a2e3a',
-    special:    '#2e2a1a',
-  };
-  const blockColor = catColors[building.category] || '#1a2235';
-  const blockInset = 8 * scale;
-  ctx.fillStyle = blockColor;
-  ctx.fillRect(sx + blockInset, sy + blockInset, tw - blockInset * 2, th - blockInset * 2);
+  // Draw building image or fallback colored block
+  const blockInset = 6 * scale;
+  const imgX = sx + blockInset;
+  const imgY = sy + blockInset;
+  const imgW = tw - blockInset * 2;
+  const imgH = th - blockInset * 2;
 
-  // Building icon centered
-  const iconSize = Math.max(12, TILE_W * scale * 0.38);
-  ctx.font = `${iconSize}px serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  if (isSelected) {
-    ctx.shadowColor = '#c9a84c';
-    ctx.shadowBlur  = 10 * scale;
+  const img = getBuildingImage(building.type);
+  if (img && img.complete && img.naturalWidth > 0) {
+    if (isSelected) {
+      ctx.shadowColor = '#c9a84c';
+      ctx.shadowBlur  = 12 * scale;
+    }
+    // Slight dark tint overlay behind image
+    ctx.fillStyle = 'rgba(6,12,20,0.3)';
+    ctx.fillRect(imgX, imgY, imgW, imgH);
+    ctx.drawImage(img, imgX, imgY, imgW, imgH);
+    ctx.shadowBlur = 0;
+  } else {
+    // Fallback: colored block while image loads
+    const catColors = {
+      production: '#1a4a2e',
+      military:   '#2e1a1a',
+      defense:    '#1a2e3a',
+      special:    '#2e2a1a',
+    };
+    ctx.fillStyle = catColors[building.category] || '#1a2235';
+    ctx.fillRect(imgX, imgY, imgW, imgH);
+    // emoji fallback
+    const iconSize = Math.max(12, TILE_W * scale * 0.38);
+    ctx.font = `${iconSize}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(building.icon || '🏗️', sx + tw / 2, sy + th / 2 - 4 * scale);
+    // Trigger redraw once image loads
+    if (img) img.onload = () => drawMap();
   }
-  ctx.fillText(building.icon || '🏗️', sx + tw / 2, sy + th / 2 - 4 * scale);
-  ctx.shadowBlur = 0;
 
   // Level badge — bottom right corner
   if (building.level > 0) {
