@@ -1,1 +1,1428 @@
-<h1>The Archive Council - Coming Soon</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Archive Council — Rise. Build. Conquer.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void: #030508;
+  --deep: #080d14;
+  --panel: #0c1420;
+  --border: #1a2840;
+  --gold: #c9a84c;
+  --gold-light: #e8c96a;
+  --gold-dim: #7a6030;
+  --cyan: #4ab8d4;
+  --cyan-dim: #1a4a5a;
+  --red: #d44a4a;
+  --green: #4ad48a;
+  --text: #c8d8e8;
+  --text-dim: #6a8aaa;
+  --glow: rgba(201,168,76,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── STARFIELD ── */
+#stars-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 48px;
+  background: linear-gradient(to bottom, rgba(3,5,8,0.95), transparent);
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.nav-logo-icon {
+  width: 36px; height: 36px;
+  border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  color: var(--gold);
+  transform: rotate(45deg);
+}
+.nav-logo-icon span { transform: rotate(-45deg); display: block; }
+
+.nav-logo-text {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+.nav-logo-text small {
+  display: block;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  font-weight: 400;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--gold); }
+
+.nav-actions { display: flex; gap: 12px; align-items: center; }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 8px 20px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-primary {
+  background: var(--gold);
+  border: none;
+  color: var(--void);
+  padding: 9px 24px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary:hover { background: var(--gold-light); }
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+}
+
+.hero-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  letter-spacing: 4px;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(52px, 8vw, 112px);
+  font-weight: 900;
+  line-height: 0.95;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.4s forwards;
+}
+.hero-title .gold { color: var(--gold); }
+.hero-title .white { color: #fff; }
+
+.hero-sub {
+  font-size: clamp(14px, 2vw, 18px);
+  color: var(--text-dim);
+  max-width: 580px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.6s forwards;
+}
+.hero-sub strong { color: var(--text); }
+
+.hero-divider {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  margin: 0 auto 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.5s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.8s forwards;
+}
+
+.btn-hero {
+  padding: 14px 40px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s;
+}
+.btn-hero-primary {
+  background: var(--gold);
+  color: var(--void);
+}
+.btn-hero-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(201,168,76,0.3);
+}
+.btn-hero-secondary {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+}
+.btn-hero-secondary:hover {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.08);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  margin-top: 72px;
+  opacity: 0;
+  animation: fadeUp 0.8s 1s forwards;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-family: 'Cinzel', serif;
+  font-size: 28px;
+  color: var(--gold);
+  font-weight: 700;
+}
+.stat-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── FEATURES ── */
+.features {
+  position: relative;
+  z-index: 1;
+  padding: 120px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+.section-tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  color: #fff;
+}
+.section-title span { color: var(--gold); }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.feature-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 40px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.feature-card:hover::before { opacity: 1; }
+.feature-card:hover { border-color: rgba(201,168,76,0.3); }
+
+.feature-icon {
+  font-size: 32px;
+  margin-bottom: 20px;
+  display: block;
+}
+.feature-title {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.feature-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ── CTA ── */
+.cta-section {
+  position: relative;
+  z-index: 1;
+  padding: 120px 48px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+.cta-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.cta-title span { color: var(--gold); }
+.cta-sub {
+  color: var(--text-dim);
+  font-size: 16px;
+  margin-bottom: 40px;
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ════════════════════════════════════════
+   AUTH MODAL
+════════════════════════════════════════ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(3,5,8,0.92);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 440px;
+  padding: 0;
+  position: relative;
+  animation: modalIn 0.3s ease;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 60px rgba(201,168,76,0.05);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(-20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-top {
+  height: 3px;
+  background: linear-gradient(to right, transparent, var(--gold), var(--cyan), transparent);
+}
+
+.modal-header {
+  padding: 32px 36px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.modal-logo {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.modal-subtitle {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.modal-tabs {
+  display: flex;
+  margin: 24px 36px 0;
+  border-bottom: 1px solid var(--border);
+}
+.modal-tab {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+.modal-tab.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.modal-body {
+  padding: 28px 36px 36px;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.form-group {
+  margin-bottom: 18px;
+}
+.form-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.form-input {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 11px 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--gold-dim); }
+.form-input::placeholder { color: var(--text-dim); font-size: 13px; }
+
+.form-error {
+  background: rgba(212,74,74,0.1);
+  border: 1px solid rgba(212,74,74,0.3);
+  color: #e88;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+}
+.form-error.show { display: block; }
+
+.form-success {
+  background: rgba(74,212,138,0.1);
+  border: 1px solid rgba(74,212,138,0.3);
+  color: #8e8;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+}
+.form-success.show { display: block; }
+
+.btn-submit {
+  width: 100%;
+  background: var(--gold);
+  border: none;
+  color: var(--void);
+  padding: 13px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.btn-submit:hover:not(:disabled) { background: var(--gold-light); }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: var(--gold); }
+
+/* ════════════════════════════════════════
+   DASHBOARD PAGE
+════════════════════════════════════════ */
+#dashboard-page {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--void);
+  overflow: auto;
+}
+
+.dash-nav {
+  background: var(--deep);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dash-logo {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+.dash-nav-tabs {
+  display: flex;
+  gap: 0;
+  height: 100%;
+}
+.dash-tab {
+  padding: 0 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 100%;
+}
+.dash-tab:hover { color: var(--text); }
+.dash-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.dash-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dash-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.dash-title-badge {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  background: rgba(201,168,76,0.1);
+  border: 1px solid var(--gold-dim);
+  padding: 2px 8px;
+}
+.btn-logout {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+.dash-content {
+  padding: 40px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Resources bar */
+.resources-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.res-card {
+  flex: 1;
+  min-width: 160px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.res-icon { font-size: 22px; }
+.res-info { flex: 1; }
+.res-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.res-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 20px;
+  color: var(--gold);
+  line-height: 1.2;
+}
+.res-rate {
+  font-size: 10px;
+  color: var(--green);
+}
+
+/* Colony card */
+.dash-section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.colony-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 28px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.colony-icon { font-size: 48px; }
+.colony-info { flex: 1; }
+.colony-name {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.colony-coords {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  margin-bottom: 12px;
+}
+.colony-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.colony-meta-item {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.colony-meta-item strong { color: var(--text); }
+
+.btn-enter-colony {
+  background: var(--gold);
+  border: none;
+  color: var(--void);
+  padding: 12px 28px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-enter-colony:hover { background: var(--gold-light); }
+
+/* Buildings grid */
+.buildings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.building-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+.building-card:hover { border-color: var(--gold-dim); }
+.building-card-icon { font-size: 28px; margin-bottom: 10px; }
+.building-card-name {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.building-card-level {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.building-progress {
+  height: 2px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.building-progress-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--gold);
+  animation: buildPulse 2s ease-in-out infinite;
+}
+@keyframes buildPulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Queue */
+.queue-list { display: flex; flex-direction: column; gap: 8px; }
+.queue-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.queue-item-icon { font-size: 20px; }
+.queue-item-info { flex: 1; }
+.queue-item-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.queue-item-time { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--cyan); }
+.queue-empty { color: var(--text-dim); font-size: 13px; padding: 20px 0; }
+
+/* Loading state */
+.dash-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 20px;
+}
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Nebula bg */
+.nebula {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 30%, rgba(74,184,212,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 70%, rgba(201,168,76,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% 50%, rgba(8,13,20,0.8) 0%, transparent 100%);
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+<div class="nebula"></div>
+
+<!-- ── LANDING PAGE ── -->
+<div id="landing-page">
+
+  <nav>
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon"><span>⬡</span></div>
+      <div class="nav-logo-text">
+        THE ARCHIVE COUNCIL
+        <small>// SCI-FI STRATEGY MMO</small>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">ABOUT</a></li>
+      <li><a href="#features">FEATURES</a></li>
+      <li><a href="#">LORE</a></li>
+      <li><a href="#">RANKINGS</a></li>
+      <li><a href="#">DISCORD</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn-ghost" onclick="openModal('login')">SIGN IN</button>
+      <button class="btn-primary" onclick="openModal('register')">PLAY NOW</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">◈ GALACTIC EMPIRE BUILDER · MMO STRATEGY · PERSISTENT WORLD</div>
+    <h1 class="hero-title">
+      <span class="gold">The Archive</span><br>
+      <span class="white">Council</span>
+    </h1>
+    <div class="hero-divider"></div>
+    <p class="hero-sub">
+      Forge a galactic colony from the ruins of the First Epoch.
+      <strong>Build cities, train elite forces, forge alliances</strong>
+      and carve your name into the Archive — the eternal record of civilizations.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-hero btn-hero-primary" onclick="openModal('register')">ENTER THE ARCHIVE</button>
+      <button class="btn-hero btn-hero-secondary" onclick="openModal('login')">SIGN IN</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num" id="stat-players">—</div>
+        <div class="stat-label">Commanders</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">13</div>
+        <div class="stat-label">Building Types</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">S0</div>
+        <div class="stat-label">Current Season</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="section-header">
+      <div class="section-tag">// CORE SYSTEMS</div>
+      <h2 class="section-title">A Galaxy Awaits Your <span>Command</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🏙️</span>
+        <div class="feature-title">Colony Building</div>
+        <p class="feature-desc">Construct and upgrade 13 building types across your colonies. Solar arrays, ore extractors, quantum labs, shipyards, and more — each unlocking new capabilities.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">⚡</span>
+        <div class="feature-title">Resource Economy</div>
+        <p class="feature-desc">Manage Energy, Ore, Nanites, and Rations in real time. Balance production vs. storage, trade on the Black Market, and outpace rival Commanders.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🤖</span>
+        <div class="feature-title">Military Force</div>
+        <p class="feature-desc">Train Cyber Soldiers, assemble Drone Bays, and commission Warships. Launch coordinated assaults, scout enemy colonies, or reinforce your allies.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🔬</span>
+        <div class="feature-title">Tech Research</div>
+        <p class="feature-desc">Advance through five research disciplines — unlocking refined production methods, superior combat units, and powerful Archive-class abilities.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🛡️</span>
+        <div class="feature-title">Syndicates</div>
+        <p class="feature-desc">Form or join a Syndicate of up to dozens of Commanders. Share intelligence, coordinate attacks, trade resources, and dominate the seasonal rankings.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📡</span>
+        <div class="feature-title">Seasons & Legacy</div>
+        <p class="feature-desc">Each season resets the galaxy — but your Archive titles and prestige carry forward. Rise through the ranks to claim the legendary Commander-Eternal title.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2 class="cta-title">Your Colony <span>Awaits</span></h2>
+    <p class="cta-sub">Season 0 is live. Join now and help shape the Archive.</p>
+    <button class="btn-hero btn-hero-primary" onclick="openModal('register')">CREATE YOUR COLONY</button>
+  </section>
+
+  <footer>
+    <span>© 2026 The Archive Council. All rights reserved.</span>
+    <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold-dim)">// SEASON 0 — DAWN</span>
+  </footer>
+
+</div>
+
+<!-- ── AUTH MODAL ── -->
+<div class="modal-overlay" id="auth-modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-top"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div class="modal-header">
+      <div class="modal-logo">⬡</div>
+      <div class="modal-title">THE ARCHIVE COUNCIL</div>
+      <div class="modal-subtitle">// SCI-FI STRATEGY MMO</div>
+    </div>
+
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-login" onclick="switchTab('login')">SIGN IN</button>
+      <button class="modal-tab" id="tab-register" onclick="switchTab('register')">REGISTER</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- LOGIN -->
+      <div class="tab-panel active" id="panel-login">
+        <div class="form-error" id="login-error"></div>
+        <div class="form-success" id="login-success"></div>
+        <div class="form-group">
+          <label class="form-label">Commander Name</label>
+          <input class="form-input" type="text" id="login-username" placeholder="Your username" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Access Code</label>
+          <input class="form-input" type="password" id="login-password" placeholder="Your password" autocomplete="current-password">
+        </div>
+        <button class="btn-submit" id="login-btn" onclick="doLogin()">ENTER THE ARCHIVE</button>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="tab-panel" id="panel-register">
+        <div class="form-error" id="register-error"></div>
+        <div class="form-success" id="register-success"></div>
+        <div class="form-group">
+          <label class="form-label">Commander Name</label>
+          <input class="form-input" type="text" id="register-username" placeholder="3–32 characters" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="register-email" placeholder="your@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Access Code</label>
+          <input class="form-input" type="password" id="register-password" placeholder="Min. 8 characters" autocomplete="new-password">
+        </div>
+        <button class="btn-submit" id="register-btn" onclick="doRegister()">CLAIM YOUR COLONY</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD PAGE ── -->
+<div id="dashboard-page">
+  <div class="dash-nav">
+    <div class="dash-logo">⬡ ARCHIVE</div>
+    <div class="dash-nav-tabs">
+      <button class="dash-tab active">EMPIRE</button>
+      <button class="dash-tab">ALLIANCE</button>
+      <button class="dash-tab">REPORTS</button>
+      <button class="dash-tab">RANKINGS</button>
+      <button class="dash-tab">MARKET</button>
+      <button class="dash-tab">RESEARCH</button>
+    </div>
+    <div class="dash-user">
+      <div>
+        <div class="dash-username" id="dash-username">—</div>
+        <div class="dash-title-badge" id="dash-title">INITIATE</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">LOGOUT</button>
+    </div>
+  </div>
+
+  <div class="dash-content">
+
+    <div id="dash-loading" class="dash-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">CONNECTING TO ARCHIVE...</div>
+    </div>
+
+    <div id="dash-main" style="display:none">
+
+      <!-- Resources -->
+      <div class="resources-bar" id="resources-bar">
+        <div class="res-card">
+          <div class="res-icon">⚡</div>
+          <div class="res-info">
+            <div class="res-label">Energy</div>
+            <div class="res-value" id="res-energy">—</div>
+            <div class="res-rate" id="res-energy-rate">+0/hr</div>
+          </div>
+        </div>
+        <div class="res-card">
+          <div class="res-icon">⛏️</div>
+          <div class="res-info">
+            <div class="res-label">Ore</div>
+            <div class="res-value" id="res-ore">—</div>
+            <div class="res-rate" id="res-ore-rate">+0/hr</div>
+          </div>
+        </div>
+        <div class="res-card">
+          <div class="res-icon">🔬</div>
+          <div class="res-info">
+            <div class="res-label">Nanites</div>
+            <div class="res-value" id="res-nanites">—</div>
+            <div class="res-rate" id="res-nanites-rate">+0/hr</div>
+          </div>
+        </div>
+        <div class="res-card">
+          <div class="res-icon">🌾</div>
+          <div class="res-info">
+            <div class="res-label">Rations</div>
+            <div class="res-value" id="res-rations">—</div>
+            <div class="res-rate" id="res-rations-rate">+0/hr</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colony -->
+      <div class="dash-section-title">YOUR COLONY</div>
+      <div class="colony-card" id="colony-card">
+        <div class="colony-icon">🏙️</div>
+        <div class="colony-info">
+          <div class="colony-name" id="colony-name">Loading...</div>
+          <div class="colony-coords" id="colony-coords">SECTOR —, —</div>
+          <div class="colony-meta">
+            <div class="colony-meta-item">Energy Cap: <strong id="colony-energy-cap">—</strong></div>
+            <div class="colony-meta-item">Ore Cap: <strong id="colony-ore-cap">—</strong></div>
+            <div class="colony-meta-item">Season: <strong>0 — Dawn</strong></div>
+          </div>
+        </div>
+        <button class="btn-enter-colony">ENTER COLONY ▶</button>
+      </div>
+
+      <!-- Buildings -->
+      <div class="dash-section-title">STRUCTURES</div>
+      <div class="buildings-grid" id="buildings-grid">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Build Queue -->
+      <div class="dash-section-title">BUILD QUEUE</div>
+      <div class="queue-list" id="queue-list">
+        <!-- populated by JS -->
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://game.thearchivecouncil.com/api';
+
+// ── Token storage ──
+function getToken() { return localStorage.getItem('tac_token'); }
+function setToken(t) { localStorage.setItem('tac_token', t); sessionStorage.setItem('tac_token', t); }
+function clearToken() { localStorage.removeItem('tac_token'); sessionStorage.removeItem('tac_token'); }
+
+// ── Modal ──
+function openModal(tab) {
+  document.getElementById('auth-modal').classList.add('open');
+  switchTab(tab || 'login');
+  setTimeout(() => {
+    const field = tab === 'register'
+      ? document.getElementById('register-username')
+      : document.getElementById('login-username');
+    if (field) field.focus();
+  }, 100);
+}
+
+function closeModal() {
+  document.getElementById('auth-modal').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('auth-modal')) closeModal();
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+  document.getElementById('panel-register').classList.toggle('active', tab === 'register');
+}
+
+// ── Auth API calls ──
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  const ok  = document.getElementById('login-success');
+
+  err.classList.remove('show');
+  ok.classList.remove('show');
+
+  if (!username || !password) {
+    showError(err, 'Please enter your username and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'CONNECTING...';
+
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(err, data.error || 'Login failed.');
+      return;
+    }
+
+    setToken(data.token);
+    ok.textContent = `Welcome back, ${data.user.username}. Entering the Archive...`;
+    ok.classList.add('show');
+
+    setTimeout(() => {
+      window.location.href = 'https://game.thearchivecouncil.com/play?token=' + encodeURIComponent(data.token);
+    }, 800);
+
+  } catch (e) {
+    showError(err, 'Could not connect to the Archive. Try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'ENTER THE ARCHIVE';
+  }
+}
+
+async function doRegister() {
+  const username = document.getElementById('register-username').value.trim();
+  const email    = document.getElementById('register-email').value.trim();
+  const password = document.getElementById('register-password').value;
+  const btn = document.getElementById('register-btn');
+  const err = document.getElementById('register-error');
+  const ok  = document.getElementById('register-success');
+
+  err.classList.remove('show');
+  ok.classList.remove('show');
+
+  if (!username || !email || !password) {
+    showError(err, 'All fields are required.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'ESTABLISHING COLONY...';
+
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError(err, data.error || 'Registration failed.');
+      return;
+    }
+
+    setToken(data.token);
+    ok.textContent = `Colony established, ${data.user.username}. Welcome to the Archive.`;
+    ok.classList.add('show');
+
+    setTimeout(() => {
+      window.location.href = 'https://game.thearchivecouncil.com/play?token=' + encodeURIComponent(data.token);
+    }, 1000);
+
+  } catch (e) {
+    showError(err, 'Could not connect to the Archive. Try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'CLAIM YOUR COLONY';
+  }
+}
+
+function showError(el, msg) {
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function doLogout() {
+  clearToken();
+  document.getElementById('dashboard-page').style.display = 'none';
+  document.getElementById('landing-page').style.display = 'block';
+}
+
+// ── Dashboard ──
+async function showDashboard(user) {
+  document.getElementById('landing-page').style.display = 'none';
+  document.getElementById('dashboard-page').style.display = 'block';
+  document.getElementById('dash-loading').style.display = 'flex';
+  document.getElementById('dash-main').style.display = 'none';
+
+  document.getElementById('dash-username').textContent = user.username || '—';
+  document.getElementById('dash-title').textContent = user.title || 'INITIATE';
+
+  try {
+    const token = getToken();
+    const res = await fetch(`${API}/colonies`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const colonies = await res.json();
+
+    if (!res.ok || !colonies.length) {
+      document.getElementById('dash-loading').innerHTML =
+        '<div class="loading-text">No colonies found. Something went wrong.</div>';
+      return;
+    }
+
+    const colony = colonies[0];
+    renderDashboard(colony, token);
+
+  } catch (e) {
+    document.getElementById('dash-loading').innerHTML =
+      '<div class="loading-text">Failed to load empire data.</div>';
+  }
+}
+
+async function renderDashboard(colony, token) {
+  // Resources
+  document.getElementById('res-energy').textContent  = fmt(colony.energy);
+  document.getElementById('res-ore').textContent     = fmt(colony.ore);
+  document.getElementById('res-nanites').textContent = fmt(colony.nanites);
+  document.getElementById('res-rations').textContent = fmt(colony.rations);
+  document.getElementById('res-energy-rate').textContent  = `+${fmt(colony.energy_rate)}/hr`;
+  document.getElementById('res-ore-rate').textContent     = `+${fmt(colony.ore_rate)}/hr`;
+  document.getElementById('res-nanites-rate').textContent = `+${fmt(colony.nanites_rate)}/hr`;
+  document.getElementById('res-rations-rate').textContent = `+${fmt(colony.rations_rate)}/hr`;
+
+  // Colony info
+  document.getElementById('colony-name').textContent   = colony.name;
+  document.getElementById('colony-coords').textContent = `SECTOR ${colony.sector_x}, ${colony.sector_y}`;
+  document.getElementById('colony-energy-cap').textContent = fmt(colony.energy_cap);
+  document.getElementById('colony-ore-cap').textContent    = fmt(colony.ore_cap);
+
+  // Load buildings
+  const res2 = await fetch(`${API}/colonies/${colony.id}`, {
+    headers: { Authorization: `Bearer ${getToken()}` }
+  });
+  const detail = await res2.json();
+
+  // Buildings grid
+  const grid = document.getElementById('buildings-grid');
+  grid.innerHTML = '';
+  if (detail.buildings && detail.buildings.length) {
+    detail.buildings.forEach(b => {
+      const pct = Math.min(100, (b.level / (b.max_level || 10)) * 100);
+      grid.innerHTML += `
+        <div class="building-card">
+          <div class="building-card-icon">${b.icon || '🏗️'}</div>
+          <div class="building-card-name">${b.label}</div>
+          <div class="building-card-level">Level ${b.level} / ${b.max_level}</div>
+          <div class="building-progress">
+            <div class="building-progress-bar" style="width:${pct}%"></div>
+          </div>
+        </div>`;
+    });
+  } else {
+    grid.innerHTML = '<p class="queue-empty">No structures built yet.</p>';
+  }
+
+  // Queue
+  const queueEl = document.getElementById('queue-list');
+  queueEl.innerHTML = '';
+  if (detail.queue && detail.queue.length) {
+    detail.queue.forEach(q => {
+      const finish = new Date(q.finish_at);
+      queueEl.innerHTML += `
+        <div class="queue-item">
+          <div class="queue-item-icon">${q.icon || '🏗️'}</div>
+          <div class="queue-item-info">
+            <div class="queue-item-name">${q.label} → Lv.${q.level + 1}</div>
+            <div class="queue-item-time">Completes: ${finish.toLocaleTimeString()}</div>
+          </div>
+        </div>`;
+    });
+  } else {
+    queueEl.innerHTML = '<div class="queue-empty">Build queue is empty.</div>';
+  }
+
+  document.getElementById('dash-loading').style.display = 'none';
+  document.getElementById('dash-main').style.display = 'block';
+}
+
+function fmt(n) {
+  if (n == null) return '0';
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return Math.floor(n).toLocaleString();
+}
+
+// ── Enter key support ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter') {
+    if (document.getElementById('panel-login').classList.contains('active') &&
+        document.getElementById('auth-modal').classList.contains('open')) doLogin();
+    if (document.getElementById('panel-register').classList.contains('active') &&
+        document.getElementById('auth-modal').classList.contains('open')) doRegister();
+  }
+});
+
+// ── Auto-login if token exists ──
+window.addEventListener('load', async () => {
+  const token = getToken();
+  if (token) {
+    try {
+      const res = await fetch(`${API}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        window.location.href = 'https://game.thearchivecouncil.com/play?token=' + encodeURIComponent(token);
+        return;
+      }
+    } catch (e) {}
+    clearToken();
+  }
+
+  // Fetch live player count
+  try {
+    const r = await fetch(`${API}/rankings`);
+    const data = await r.json();
+    if (Array.isArray(data)) {
+      document.getElementById('stat-players').textContent =
+        data.length > 0 ? data.length : '—';
+    }
+  } catch(e) {}
+});
+
+// ── Starfield ──
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function initStars() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = Array.from({ length: 200 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.4 + 0.2,
+    a: Math.random(),
+    speed: Math.random() * 0.4 + 0.1,
+    twinkle: Math.random() * Math.PI * 2
+  }));
+}
+
+function drawStars(t) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.twinkle += s.speed * 0.02;
+    const alpha = 0.3 + Math.sin(s.twinkle) * 0.4;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,220,255,${Math.max(0, alpha)})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+
+window.addEventListener('resize', initStars);
+initStars();
+requestAnimationFrame(drawStars);
+</script>
+</body>
+</html>

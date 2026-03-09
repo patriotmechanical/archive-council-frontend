@@ -1460,6 +1460,14 @@ async function buildNew(type, tx, ty) {
 async function loadGame() {
   setLoading('AUTHENTICATING...');
 
+  // Pick up token from URL if coming from play page
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  if (urlToken) {
+    localStorage.setItem('tac_token', urlToken);
+    history.replaceState({}, '', window.location.pathname);
+  }
+
   const token = getToken();
   if (!token) { window.location.href = 'https://thearchivecouncil.com'; return; }
 
@@ -1758,8 +1766,8 @@ function resetView(){ scale = 1; centerView(); }
 // ══════════════════════════════════════════════════
 //  UTILITIES
 // ══════════════════════════════════════════════════
-function getToken()   { return sessionStorage.getItem('tac_token'); }
-function clearToken() { sessionStorage.removeItem('tac_token'); }
+function getToken()   { return localStorage.getItem('tac_token'); }
+function clearToken() { localStorage.removeItem('tac_token'); }
 
 function doLogout() {
   clearToken();
@@ -1833,4 +1841,3 @@ loadGame();
 </script>
 </body>
 </html>
-

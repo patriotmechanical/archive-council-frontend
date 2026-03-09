@@ -624,11 +624,20 @@ nav {
 <script>
 const API = 'https://game.thearchivecouncil.com/api';
 
-function getToken() { return sessionStorage.getItem('tac_token'); }
-function clearToken() { sessionStorage.removeItem('tac_token'); }
+function getToken() { return localStorage.getItem('tac_token'); }
+function clearToken() { localStorage.removeItem('tac_token'); }
 
 // ── Guard: redirect to home if not logged in ──
 window.addEventListener('load', async () => {
+  // Pick up token from URL if redirected from landing page
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  if (urlToken) {
+    localStorage.setItem('tac_token', urlToken);
+    // Clean token from URL without reload
+    history.replaceState({}, '', window.location.pathname);
+  }
+
   const token = getToken();
   if (!token) {
     window.location.href = 'https://thearchivecouncil.com';
@@ -680,7 +689,7 @@ window.addEventListener('load', async () => {
 });
 
 function doLogout() {
-  clearToken();
+  localStorage.removeItem('tac_token');
   window.location.href = 'https://thearchivecouncil.com';
 }
 
@@ -744,4 +753,3 @@ requestAnimationFrame(drawStars);
 </script>
 </body>
 </html>
-
