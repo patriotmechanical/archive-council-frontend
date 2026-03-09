@@ -763,6 +763,7 @@ body {
   letter-spacing: 2px;
 }
 </style>
+<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
@@ -1882,7 +1883,7 @@ function startLocalTick() {
 
     updateResourceDisplay();
     updateQueueDisplay();
-  }, 2000); // Update every 2 seconds
+  }, 1000); // Update every second for smooth display
 
   // Full server sync every 60s
   setInterval(refreshColony, 60000);
@@ -1926,15 +1927,50 @@ function buildFromTab(type) {
 // ══════════════════════════════════════════════════
 //  CHAT
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  SOCKET.IO — real-time events
+// ══════════════════════════════════════════════════
+let _socket = null;
+
+function initSocket() {
+  const token = localStorage.getItem('tac_token');
+  if (!token || _socket) return;
+
+  _socket = io({ auth: { token } });
+
+  _socket.on('connect', () => {
+    console.log('[socket] connected');
+    _socket.emit('join_channel', 'world');
+  });
+
+  // Building completed — update rates + show toast + refresh colony
+  _socket.on('building_complete', async (data) => {
+    showToast('\u2705 ' + data.label + ' \u2192 Lv.' + data.new_level + ' complete!');
+    if (data.rates) {
+      STATE.resourceRates.energy  = data.rates.energy_rate;
+      STATE.resourceRates.ore     = data.rates.ore_rate;
+      STATE.resourceRates.nanites = data.rates.nanites_rate;
+      STATE.resourceRates.rations = data.rates.rations_rate;
+      updateResourceDisplay();
+    }
+    await refreshColony();
+  });
+
+  // Real-time chat messages
+  _socket.on('chat_message', (msg) => {
+    const el = document.getElementById('chat-messages');
+    const wasAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+    el.innerHTML += '<div class="chat-msg"><span class="chat-msg-user">' + escHtml(msg.username) + '</span><span class="chat-msg-text"> ' + escHtml(msg.message) + '</span></div>';
+    if (wasAtBottom) el.scrollTop = el.scrollHeight;
+  });
+
+  _socket.on('disconnect', () => console.log('[socket] disconnected'));
+}
+
 async function loadChat() {
   const msgs = await apiFetch('/chat/world');
   if (Array.isArray(msgs)) renderChat(msgs);
-
-  // Poll every 10s
-  setInterval(async () => {
-    const fresh = await apiFetch('/chat/world');
-    if (Array.isArray(fresh)) renderChat(fresh);
-  }, 10000);
+  initSocket();
 }
 
 function renderChat(msgs) {
