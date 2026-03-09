@@ -197,6 +197,7 @@ body {
 }
 
 #city-canvas {
+  cursor: grab;
   display: block;
   cursor: default;
 }
@@ -1218,40 +1219,95 @@ function drawMap() {
 }
 
 // ══════════════════════════════════════════════════
-//  MOUSE HANDLING
+//  PAN + ZOOM MOUSE HANDLING
 // ══════════════════════════════════════════════════
+let isPanning = false;
+let panStartX = 0, panStartY = 0;
+let panStartOffsetX = 0, panStartOffsetY = 0;
+let didPan = false;
+
+canvas.addEventListener('mousedown', (e) => {
+  if (e.button === 0) {
+    isPanning = true;
+    didPan = false;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    panStartOffsetX = offsetX;
+    panStartOffsetY = offsetY;
+    canvas.style.cursor = 'grabbing';
+  }
+});
+
 canvas.addEventListener('mousemove', (e) => {
   const rect = canvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
-  const { tx, ty } = screenToIso(mx, my);
 
+  if (isPanning) {
+    const dx = e.clientX - panStartX;
+    const dy = e.clientY - panStartY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) didPan = true;
+    offsetX = panStartOffsetX + dx;
+    offsetY = panStartOffsetY + dy;
+    hideTooltip();
+    return;
+  }
+
+  const { tx, ty } = screenToIso(mx, my);
   if (isValidTile(tx, ty) && isSlot(tx, ty)) {
     hoveredTile = { tx, ty };
     canvas.style.cursor = 'pointer';
     showTooltip(tx, ty, e.clientX, e.clientY);
   } else {
     hoveredTile = null;
-    canvas.style.cursor = 'default';
+    canvas.style.cursor = 'grab';
     hideTooltip();
   }
 });
 
+window.addEventListener('mouseup', (e) => {
+  if (isPanning) {
+    isPanning = false;
+    canvas.style.cursor = 'grab';
+  }
+});
+
 canvas.addEventListener('click', (e) => {
+  if (didPan) { didPan = false; return; } // don't select if we were panning
   const rect = canvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
   const { tx, ty } = screenToIso(mx, my);
-
   if (isValidTile(tx, ty) && isSlot(tx, ty)) {
     selectTile(tx, ty);
   }
 });
 
 canvas.addEventListener('mouseleave', () => {
-  hoveredTile = null;
-  hideTooltip();
+  if (!isPanning) {
+    hoveredTile = null;
+    hideTooltip();
+  }
 });
+
+// Scroll to zoom toward mouse position
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  // World position under mouse before zoom
+  const worldX = (mx - offsetX) / scale;
+  const worldY = (my - offsetY) / scale;
+
+  const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+  scale = Math.min(Math.max(scale * zoomFactor, 0.3), 3.0);
+
+  // Adjust offset so world point stays under mouse
+  offsetX = mx - worldX * scale;
+  offsetY = my - worldY * scale;
+}, { passive: false });
 
 function showTooltip(tx, ty, mx, my) {
   const key = `${tx},${ty}`;
@@ -1774,9 +1830,23 @@ function switchPanelTab(tab, clickedEl) {
 // ══════════════════════════════════════════════════
 //  MAP CONTROLS
 // ══════════════════════════════════════════════════
-function zoomIn()   { scale = Math.min(scale * 1.25, 2.5); centerView(); }
-function zoomOut()  { scale = Math.max(scale * 0.8, 0.4);  centerView(); }
-function resetView(){ scale = 1; centerView(); }
+function zoomIn() {
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const worldX = (cx - offsetX) / scale;
+  const worldY = (cy - offsetY) / scale;
+  scale = Math.min(scale * 1.25, 3.0);
+  offsetX = cx - worldX * scale;
+  offsetY = cy - worldY * scale;
+}
+function zoomOut() {
+  const cx = canvas.width / 2, cy = canvas.height / 2;
+  const worldX = (cx - offsetX) / scale;
+  const worldY = (cy - offsetY) / scale;
+  scale = Math.max(scale * 0.8, 0.3);
+  offsetX = cx - worldX * scale;
+  offsetY = cy - worldY * scale;
+}
+function resetView() { scale = 1; centerView(); }
 
 // ══════════════════════════════════════════════════
 //  UTILITIES
