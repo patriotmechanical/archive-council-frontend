@@ -987,24 +987,25 @@ let STATE = {
 const canvas  = document.getElementById('city-canvas');
 const ctx     = canvas.getContext('2d');
 
-// Grid config
+// Grid config — flat top-down
 const GRID_COLS = 18;
 const GRID_ROWS = 14;
-let TILE_W = 64;
-let TILE_H = 32;
+let TILE_W = 56;
+let TILE_H = 56;
 let offsetX = 0;
 let offsetY = 0;
 let scale   = 1;
 
 // Color palette for tiles
 const TILE_COLORS = {
-  ground:    '#0f1e2e',
-  ground2:   '#0c1a28',
-  pad:       '#0a2535',
-  grid_line: 'rgba(74,184,212,0.08)',
-  highlight: 'rgba(201,168,76,0.18)',
-  hover:     'rgba(74,184,212,0.12)',
-  built:     'rgba(201,168,76,0.07)',
+  ground:     '#0a1622',
+  ground2:    '#081320',
+  pad:        '#0d2235',
+  grid_line:  'rgba(74,184,212,0.15)',
+  highlight:  'rgba(201,168,76,0.25)',
+  hover:      'rgba(74,184,212,0.20)',
+  built:      'rgba(201,168,76,0.10)',
+  pad_border: 'rgba(74,184,212,0.4)',
 };
 
 let hoveredTile = null;
@@ -1035,24 +1036,21 @@ function resizeCanvas() {
 }
 
 function centerView() {
-  // Center the isometric grid
-  const gridW = (GRID_COLS + GRID_ROWS) * (TILE_W / 2);
-  const gridH = (GRID_COLS + GRID_ROWS) * (TILE_H / 2);
-  offsetX = (canvas.width  - gridW * scale) / 2 + gridW * scale * 0.08;
-  offsetY = (canvas.height - gridH * scale) / 2 - gridH * scale * 0.05;
+  const gridW = GRID_COLS * TILE_W * scale;
+  const gridH = GRID_ROWS * TILE_H * scale;
+  offsetX = (canvas.width  - gridW) / 2;
+  offsetY = (canvas.height - gridH) / 2;
 }
 
 function isoToScreen(tx, ty) {
-  const sx = (tx - ty) * (TILE_W / 2) * scale + offsetX;
-  const sy = (tx + ty) * (TILE_H / 2) * scale + offsetY;
+  const sx = tx * TILE_W * scale + offsetX;
+  const sy = ty * TILE_H * scale + offsetY;
   return { sx, sy };
 }
 
 function screenToIso(mx, my) {
-  const rx = (mx - offsetX) / scale;
-  const ry = (my - offsetY) / scale;
-  const tx = Math.round((rx / (TILE_W / 2) + ry / (TILE_H / 2)) / 2);
-  const ty = Math.round((ry / (TILE_H / 2) - rx / (TILE_W / 2)) / 2);
+  const tx = Math.floor((mx - offsetX) / (TILE_W * scale));
+  const ty = Math.floor((my - offsetY) / (TILE_H * scale));
   return { tx, ty };
 }
 
@@ -1064,17 +1062,14 @@ function isSlot(tx, ty) {
   return BUILDING_SLOTS.some(s => s.tx === tx && s.ty === ty);
 }
 
-function drawTile(tx, ty, fillColor, strokeColor) {
+function drawTile(tx, ty, fillColor, strokeColor, borderColor) {
   const { sx, sy } = isoToScreen(tx, ty);
-  const tw = TILE_W * scale / 2;
-  const th = TILE_H * scale / 2;
+  const tw = TILE_W * scale;
+  const th = TILE_H * scale;
+  const pad = 1; // gap between tiles
 
   ctx.beginPath();
-  ctx.moveTo(sx,      sy - th);
-  ctx.lineTo(sx + tw, sy);
-  ctx.lineTo(sx,      sy + th);
-  ctx.lineTo(sx - tw, sy);
-  ctx.closePath();
+  ctx.rect(sx + pad, sy + pad, tw - pad * 2, th - pad * 2);
 
   if (fillColor) {
     ctx.fillStyle = fillColor;
@@ -1085,53 +1080,74 @@ function drawTile(tx, ty, fillColor, strokeColor) {
     ctx.lineWidth = 0.5;
     ctx.stroke();
   }
+  // Extra border for slot tiles
+  if (borderColor) {
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sx + pad, sy + pad, tw - pad * 2, th - pad * 2);
+  }
 }
 
 function drawBuilding(tx, ty, building) {
   const { sx, sy } = isoToScreen(tx, ty);
-  const tw = TILE_W * scale / 2;
-  const th = TILE_H * scale / 2;
+  const tw = TILE_W * scale;
+  const th = TILE_H * scale;
+  const pad = 1;
 
-  // Building platform
-  ctx.beginPath();
-  ctx.moveTo(sx,      sy - th);
-  ctx.lineTo(sx + tw, sy);
-  ctx.lineTo(sx,      sy + th);
-  ctx.lineTo(sx - tw, sy);
-  ctx.closePath();
-  ctx.fillStyle = TILE_COLORS.built;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(201,168,76,0.3)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  // Building icon — drawn above tile centre
   const isSelected = STATE.selectedTile &&
     STATE.selectedTile.tx === tx && STATE.selectedTile.ty === ty;
 
-  const iconSize = Math.max(14, TILE_W * scale * 0.45);
+  // Building tile background
+  ctx.beginPath();
+  ctx.rect(sx + pad, sy + pad, tw - pad * 2, th - pad * 2);
+  ctx.fillStyle = isSelected ? TILE_COLORS.highlight : TILE_COLORS.built;
+  ctx.fill();
+  ctx.strokeStyle = isSelected ? 'rgba(201,168,76,0.8)' : 'rgba(201,168,76,0.35)';
+  ctx.lineWidth = isSelected ? 1.5 : 1;
+  ctx.stroke();
+
+  // Inner panel — sci-fi look
+  const inset = 4 * scale;
+  ctx.beginPath();
+  ctx.rect(sx + inset, sy + inset, tw - inset * 2, th - inset * 2);
+  ctx.strokeStyle = isSelected ? 'rgba(201,168,76,0.4)' : 'rgba(74,184,212,0.15)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // Placeholder block (colored by category)
+  const catColors = {
+    production: '#1a4a2e',
+    military:   '#2e1a1a',
+    defense:    '#1a2e3a',
+    special:    '#2e2a1a',
+  };
+  const blockColor = catColors[building.category] || '#1a2235';
+  const blockInset = 8 * scale;
+  ctx.fillStyle = blockColor;
+  ctx.fillRect(sx + blockInset, sy + blockInset, tw - blockInset * 2, th - blockInset * 2);
+
+  // Building icon centered
+  const iconSize = Math.max(12, TILE_W * scale * 0.38);
   ctx.font = `${iconSize}px serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-
-  // Glow for selected
   if (isSelected) {
     ctx.shadowColor = '#c9a84c';
-    ctx.shadowBlur  = 12 * scale;
+    ctx.shadowBlur  = 10 * scale;
   }
-  ctx.fillText(building.icon || '🏗️', sx, sy - th * 0.3);
+  ctx.fillText(building.icon || '🏗️', sx + tw / 2, sy + th / 2 - 4 * scale);
   ctx.shadowBlur = 0;
 
-  // Level badge
+  // Level badge — bottom right corner
   if (building.level > 0) {
-    const badgeSize = Math.max(8, 10 * scale);
-    const bx = sx + tw * 0.6;
-    const by = sy - th * 0.8;
+    const badgeSize = Math.max(7, 9 * scale);
+    const bx = sx + tw - 10 * scale;
+    const by = sy + th - 10 * scale;
     ctx.beginPath();
-    ctx.arc(bx, by, badgeSize * 0.8, 0, Math.PI * 2);
+    ctx.arc(bx, by, badgeSize, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(6,12,20,0.9)';
     ctx.fill();
-    ctx.strokeStyle = 'rgba(201,168,76,0.6)';
+    ctx.strokeStyle = 'rgba(201,168,76,0.7)';
     ctx.lineWidth = 0.8;
     ctx.stroke();
     ctx.font = `bold ${badgeSize}px Rajdhani,sans-serif`;
@@ -1141,12 +1157,12 @@ function drawBuilding(tx, ty, building) {
     ctx.fillText(building.level, bx, by);
   }
 
-  // "Building" animation
+  // Building animation — pulsing dot top-left
   if (building.is_building) {
     const t = (Date.now() / 500) % (Math.PI * 2);
     const alpha = 0.5 + 0.5 * Math.sin(t);
     ctx.beginPath();
-    ctx.arc(sx, sy - th * 0.8, 5 * scale, 0, Math.PI * 2);
+    ctx.arc(sx + 10 * scale, sy + 10 * scale, 4 * scale, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(74,184,212,${alpha})`;
     ctx.fill();
   }
@@ -1166,7 +1182,7 @@ function drawMap() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw tiles back to front (painter's algorithm)
+  // Draw tiles
   for (let ty = 0; ty < GRID_ROWS; ty++) {
     for (let tx = 0; tx < GRID_COLS; tx++) {
       const key = `${tx},${ty}`;
@@ -1174,17 +1190,16 @@ function drawMap() {
       const isSel = STATE.selectedTile && STATE.selectedTile.tx === tx && STATE.selectedTile.ty === ty;
       const isSlotTile = isSlot(tx, ty);
 
-      let fillColor = TILE_COLORS.ground;
-      if ((tx + ty) % 2 === 0) fillColor = TILE_COLORS.ground2;
+      let fillColor = (tx + ty) % 2 === 0 ? TILE_COLORS.ground : TILE_COLORS.ground2;
       if (isSlotTile) fillColor = TILE_COLORS.pad;
       if (isHov && isSlotTile) fillColor = TILE_COLORS.hover;
       if (isSel) fillColor = TILE_COLORS.highlight;
 
-      const strokeColor = isSlotTile ? TILE_COLORS.grid_line : 'rgba(20,35,50,0.4)';
+      const strokeColor = TILE_COLORS.grid_line;
+      const borderColor = isSlotTile ? TILE_COLORS.pad_border : null;
 
-      // Don't draw base tile under buildings (building draw handles it)
       if (!buildingMap[key]) {
-        drawTile(tx, ty, fillColor, strokeColor);
+        drawTile(tx, ty, fillColor, strokeColor, borderColor);
       }
     }
   }
