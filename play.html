@@ -629,12 +629,11 @@ function clearToken() { localStorage.removeItem('tac_token'); }
 
 // ── Guard: redirect to home if not logged in ──
 window.addEventListener('load', async () => {
-  // Pick up token from URL if redirected from landing page
+  // Pick up token from URL FIRST before anything else
   const params = new URLSearchParams(window.location.search);
   const urlToken = params.get('token');
   if (urlToken) {
     localStorage.setItem('tac_token', urlToken);
-    // Clean token from URL without reload
     history.replaceState({}, '', window.location.pathname);
   }
 
@@ -644,22 +643,24 @@ window.addEventListener('load', async () => {
     return;
   }
 
-  // Load user info
+  // Verify token is valid
   try {
     const res = await fetch(`${API}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) {
-      clearToken();
+      localStorage.removeItem('tac_token');
       window.location.href = 'https://thearchivecouncil.com';
       return;
     }
     const user = await res.json();
     document.getElementById('nav-username').textContent = user.username;
     document.getElementById('nav-title').textContent = user.title || 'INITIATE';
-  } catch(e) {}
+  } catch(e) {
+    // Network error — still show the page, don't redirect
+  }
 
-  // Load world stats
+  // Load world stats — not gated by auth
   try {
     const r = await fetch(`${API}/rankings`, {
       headers: { Authorization: `Bearer ${getToken()}` }
